@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Simple jquery up/down item ticker</title>
+   <!-- <link rel="stylesheet" href="style.css"> -->
+   <link href='http://fonts.googleapis.com/css?family=Raleway:200,600,700' rel='stylesheet' type='text/css'>
+   <!-- two other way to use google fonts: -->
+   <!-- @import url(http://fonts.googleapis.com/css?family=Raleway:200,600,700);  (style sheet) -->
+  <!-- <script type="text/javascript">
+  WebFontConfig = {
+    google: { families: [ 'Raleway:200,600,700:latin' ] }
+  };
+  (function() {
+    var wf = document.createElement('script');
+    wf.src = ('https:' == document.location.protocol ? 'https' : 'http') +
+      '://ajax.googleapis.com/ajax/libs/webfont/1/webfont.js';
+    wf.type = 'text/javascript';
+    wf.async = 'true';
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(wf, s);
+  })(); </script> -->
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+<style type="text/css">
+.tickeroutercontainer {
+	font-family: 'Raleway', sans-serif;
+	font-weight: 200;
+	margin: 0px;
+	padding:0px;
+	background-color: #CBFEF9;
+	border: 1px solid #006;
+	width:300px;
+	height:50px;
+	line-height: 50px;
+	color: green;
+	overflow: visible;
+	position: relative;	
+	overflow:hidden;
+}
+.tickerinnercontainer {
+	margin:0px;
+	padding:0px;
+	position: relative;	
+	margin-top:0px;
+}
+.tickeritem {
+	margin:0px;
+	position: relative;	
+	text-align:center;
+}
+</style>
+  <script>
+    // A $( document ).ready() block.
+$( document ).ready(function() {
+	//zie http://stackoverflow.com/questions/395163/get-css-top-value-as-number-not-as-string
+	//now you can do $('p#example').cssNumber('margin-top') and get an 123 instead of 123px for instance;
+	 jQuery.fn.cssNumber = function(prop){
+		var v = parseInt(this.css(prop),10);
+		return isNaN(v) ? 0 : v;
+	};
+     /* all ticker items should be of the same height (fo simplicity) */
+	 tickeritemheight=$('p.tickeritem').first().outerHeight();
+	 //console.log(tickeritemheight);
+	 cntptickeritems=$('p.tickeritem').length;//how many elements are here?
+	 //console.log(cntptickeritems);
+	 traveldist = ((cntptickeritems-1) * tickeritemheight);//how far must we move to pass every ticker item?
+	 
+	 console.log(traveldist);
+	 /**
+	 * Creates movement of element by animation of property margin-top toward a value of 0 (zero).
+	 *
+	 * @param object  innerobject jquery selector object of element to animate down
+	 * @param int traveldist Int representing ammount of pixels to travel: value to be passed on to  animatemoveup() function 
+	 *
+	 * @return null returns nothing: has side effect of animation and call animatemoveup() function
+	 */
+	 function animatemovedown(innerobject,traveldist){
+		 
+		 //animate toward margin-top = 0, and take traveldist*10 seconds for it, and then call animatemoveup() passing innerobject and traveldist
+		 innerobject.attr('data-animstatus','goingdown');//console.log('naarbenee');
+		 //console.log(innerobject.cssNumber('margin-top'));
+		 //console.log($('div#tickerinnercontainerid').css('margin-top'));
+		 travelnow= -innerobject.cssNumber('margin-top');//console.log('travelnow'+travelnow);
+		innerobject.animate({"margin-top": 0}, (travelnow)*20,"linear",function(){
+		 animatemoveup(innerobject,traveldist); 
+	   });
+	 }
+	 
+	 
+	 /**
+	 * Creates movement of element by animation of property margin-top toward a negative value traveldist.
+	 *
+	 * @param object  innerobject jquery selector object of element to animate up
+	 * @param int traveldist Int representing ammount of pixels to travel
+	 *
+	 * @return null returns nothing: has side effect of animation and call animatemovedown() function
+	 */
+	 function animatemoveup(innerobject,traveldist){
+		// console.log(traveldist + " going up");
+		  //animate toward margin-top = traveldist, and take traveldist*10 seconds for it, and then call animatemovedown() passing innerobject and traveldist
+		innerobject.attr('data-animstatus','goingup');//console.log('opwaarts');
+		//console.log(innerobject.css('margin-top'));
+		 
+		 //console.log($('div#tickerinnercontainerid').css('margin-top'));
+		 travelnow= -innerobject.cssNumber('margin-top');//console.log('travelnow'+travelnow);
+		
+		innerobject.animate({"margin-top": -(traveldist)}, (traveldist-travelnow)*20,"linear",function(){
+			
+		animatemovedown(innerobject,traveldist);
+	   }); 
+	 }
+	
+	
+	/* action starts here */
+	 $('div#tickerinnercontainerid').css("margin-top",-traveldist);//start in the up position
+	  animatemovedown($('div#tickerinnercontainerid'),traveldist);//this will start a loop of two functions calling each other
+	  $('div#tickerinnercontainerid').hover(function(){
+		 // console.log('erin');
+		  $(this).stop();
+		 // console.log($(this).css('margin-top'));
+		 // console.log($(this).attr('data-animstatus'));
+
+		  
+	  }, function(){
+		  //console.log('eruit');
+		 // console.log($(this).css('margin-top'));
+		 // margintop=$(this).css('margin-top');
+		  //console.log($(this).attr('data-animstatus'));
+		  if($(this).attr('data-animstatus')=='goingup'){
+			  animatemoveup($(this),traveldist);
+		  }else if($(this).attr('data-animstatus')=='goingdown'){
+			  animatemovedown($(this),traveldist);
+		  }
+		  
+	  })
+	
+});
+  </script>
+  </head>
+  <body>
+    <!-- page content -->
+    <a href="https://github.com/woutervandenbrink/UpDownSimpleTicker/blob/master/demo1.php" title="click to see source code on github"><div id = "tickeroutercontainerid" class = "tickeroutercontainer" style="float:left;" data-remarks="">
+      <div id="tickerinnercontainerid" class = "tickerinnercontainer" data-remarks="">
+        <p class = "tickeritem">item 1 in ticker</p>
+        <p class = "tickeritem">item 2 in ticker</p>
+        <p class = "tickeritem">item 3 in ticker</p>
+        <p class = "tickeritem">item 4 in ticker</p>
+        <p class = "tickeritem">item 5 in ticker</p>
+        <p class = "tickeritem">item 6 in ticker</p>
+        <p class = "tickeritem">item 7 in ticker</p>
+        <p class = "tickeritem">item 8 in ticker</p>
+        <p class = "tickeritem">item 9 in ticker</p>
+        <p class = "tickeritem">item 10 in ticker</p>
+        <p class = "tickeritem">item 11 in ticker</p>
+        <p class = "tickeritem">item 12 in ticker</p>
+        <p class = "tickeritem">item 13 in ticker</p>
+        <p class = "tickeritem">item 14 in ticker</p>
+        <p class = "tickeritem">item 15 in ticker</p>
+    	
+      </div>
+    	
+    </div></a>
+    
+     
+  </body>
+</html>
